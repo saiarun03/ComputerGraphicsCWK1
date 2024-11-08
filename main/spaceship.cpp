@@ -75,10 +75,34 @@ LineStrip make_spaceship_shape()
 		{ 0.2f * xs[0], 0.2f * +ys[5] } // link back to beginning (connects both sides at the "front")
 	} };
 #	elif SPACESHIP == SPACESHIP_CUSTOM
+	static constexpr float xs[] = { 250.f, 210.f, 180.f, 140.f, 100.f,  50.f,  -40.f, -120.f, -180.f, -220.f };
+    static constexpr float ys[] = { 200.f, 160.f, 120.f,  80.f,  50.f,  30.f };
 	LineStrip spaceship{ {
 
 		// TODO: YOUR DESIGN GOES HERE
-	
+		// Upper half of the spaceship, starts at the front (nose) and goes towards the back
+        { 0.2f * xs[0], 0.2f * +ys[5] }, // Tip of the nose
+        { 0.2f * xs[1], 0.2f * +ys[4] }, // Slight indent for the nose
+        { 0.2f * xs[2], 0.2f * +ys[3] }, // Transitioning to the front wings
+        { 0.2f * xs[3], 0.2f * +ys[2] }, // Front wing start
+        { 0.2f * xs[4], 0.2f * +ys[1] }, // Front wing tip
+        { 0.2f * xs[5], 0.2f * +ys[0] }, // Rear body section
+        { 0.2f * xs[6], 0.2f * +ys[1] }, // Start of rear wing
+        { 0.2f * xs[7], 0.2f * +ys[2] }, // Rear wing tip
+        { 0.2f * xs[9], 0.2f * +ys[4] }, // Back of the spaceship
+
+        // Lower half, starts from the back and mirrors the upper half
+        { 0.2f * xs[9], 0.2f * -ys[4] }, // Back of the spaceship mirrored
+        { 0.2f * xs[7], 0.2f * -ys[2] }, // Rear wing tip mirrored
+        { 0.2f * xs[6], 0.2f * -ys[1] }, // Start of rear wing mirrored
+        { 0.2f * xs[5], 0.2f * -ys[0] }, // Rear body section mirrored
+        { 0.2f * xs[4], 0.2f * -ys[1] }, // Front wing tip mirrored
+        { 0.2f * xs[3], 0.2f * -ys[2] }, // Front wing start mirrored
+        { 0.2f * xs[2], 0.2f * -ys[3] }, // Transitioning to the nose
+        { 0.2f * xs[1], 0.2f * -ys[4] }, // Slight indent for the nose mirrored
+        { 0.2f * xs[0], 0.2f * -ys[5] }, // Tip of the nose mirrored
+
+        { 0.2f * xs[0], 0.2f * +ys[5] } // Connect back to the tip of the nose
 	} };
 #	endif
 

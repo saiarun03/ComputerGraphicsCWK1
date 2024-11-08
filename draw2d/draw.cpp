@@ -97,7 +97,7 @@ void draw_triangle_solid( Surface& aSurface, Vec2f aP0, Vec2f aP1, Vec2f aP2, Co
 }
 
 
-//
+//The resource I used for the formula - https://codeplea.com/triangular-interpolation
 void draw_triangle_interp(Surface& aSurface, Vec2f aP0, Vec2f aP1, Vec2f aP2, ColorF aC0, ColorF aC1, ColorF aC2) {
     // Compute the bounding box for the triangle
     float minX = std::min({aP0.x, aP1.x, aP2.x});

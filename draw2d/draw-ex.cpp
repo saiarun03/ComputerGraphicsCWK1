@@ -7,36 +7,125 @@
 #include "image.hpp"
 #include "surface-ex.hpp"
 
-void draw_ex_line_solid( SurfaceEx& aSurface, Vec2f aBegin, Vec2f aEnd, ColorU8_sRGB aColor )
-{
-	//TODO: your implementation goes here
-	//TODO: your implementation goes here
-	//TODO: your implementation goes here
+// Used Bresenham's line algorithm from this resource: https://www.geeksforgeeks.org/bresenhams-line-generation-algorithm/
+void draw_ex_line_solid(SurfaceEx& aSurface, Vec2f aBegin, Vec2f aEnd, ColorU8_sRGB aColor) {
+    // Convert floating-point coordinates to integer
+    int x0 = static_cast<int>(aBegin.x);
+    int y0 = static_cast<int>(aBegin.y);
+    int x1 = static_cast<int>(aEnd.x);
+    int y1 = static_cast<int>(aEnd.y);
 
-	//TODO: remove the following when you start your implementation
-	(void)aSurface; // Avoid warnings about unused arguments until the function
-	(void)aBegin;   // is properly implemented.
-	(void)aEnd;
-	(void)aColor;
+    // Calculate differences and steps
+    int dx = abs(x1 - x0);
+    int dy = abs(y1 - y0);
+    int sx = (x0 < x1) ? 1 : -1; // Step direction for x
+    int sy = (y0 < y1) ? 1 : -1; // Step direction for y
+
+    int err = dx - dy; // Initial error
+
+    while (true) {
+        // Plot the current point
+        aSurface.set_pixel_srgb(x0, y0, aColor);
+
+        // Check if we've reached the end point
+        if (x0 == x1 && y0 == y1) break;
+
+        int e2 = 2 * err;
+        if (e2 > -dy) {
+            err -= dy;
+            x0 += sx;
+        }
+        if (e2 < dx) {
+            err += dx;
+            y0 += sy;
+        }
+    }
 }
 
-void blit_ex_solid( SurfaceEx& aSurface, ImageRGBA const& aImage, Vec2f aPosition )
-{
-	//TODO: your implementation goes here
-	//TODO: your implementation goes here
-	//TODO: your implementation goes here
-	(void)aSurface;  // Avoid warnings about unused arguments until the
-	(void)aImage;    // function is properly implemented.
-	(void)aPosition;
+
+void blit_ex_solid(SurfaceEx& aSurface, ImageRGBA const& aImage, Vec2f aPosition) {
+    // Get the dimensions of the image
+    int imageWidth = aImage.get_width();
+    int imageHeight = aImage.get_height();
+
+    // Calculate the top-left corner of the blitting area
+    int startX = static_cast<int>(aPosition.x - imageWidth / 2);
+    int startY = static_cast<int>(aPosition.y - imageHeight / 2);
+
+    // Get surface dimensions for bounds checking
+    int surfaceWidth = aSurface.get_width();
+    int surfaceHeight = aSurface.get_height();
+
+    // Iterate over each pixel of the image
+    for (int y = 0; y < imageHeight; ++y) {
+        for (int x = 0; x < imageWidth; ++x) {
+            // Calculate the target position on the surface
+            int targetX = startX + x;
+            int targetY = startY + y;
+
+            // Check if the target position is within the bounds of the surface
+            if (targetX >= 0 && targetX < surfaceWidth &&
+                targetY >= 0 && targetY < surfaceHeight) {
+                // Get the pixel from the image
+                ColorU8_sRGB_Alpha pixelColor = aImage.get_pixel(x, y);
+                // Convert to ColorU8_sRGB
+                ColorU8_sRGB rgbColor = { pixelColor.r, pixelColor.g, pixelColor.b }; // Assuming direct mapping
+                // Set the pixel on the surface
+                aSurface.set_pixel_srgb(targetX, targetY, rgbColor);
+            }
+        }
+    }
 }
 
-void blit_ex_memcpy( SurfaceEx& aSurface, ImageRGBA const& aImage, Vec2f aPosition )
-{
-	//TODO: your implementation goes here
-	//TODO: your implementation goes here
-	//TODO: your implementation goes here
-	(void)aSurface;  // Avoid warnings about unused arguments until the
-	(void)aImage;    // function is properly implemented.
-	(void)aPosition;
+
+#include <cstring> // For std::memcpy
+
+void blit_ex_memcpy(SurfaceEx& aSurface, ImageRGBA const& aImage, Vec2f aPosition) {
+    // Get the dimensions of the image
+    int imageWidth = aImage.get_width();
+    int imageHeight = aImage.get_height();
+
+    // Calculate the top-left corner of the blitting area
+    int startX = static_cast<int>(aPosition.x - imageWidth / 2);
+    int startY = static_cast<int>(aPosition.y - imageHeight / 2);
+
+    // Get surface dimensions for bounds checking
+    int surfaceWidth = aSurface.get_width();
+    int surfaceHeight = aSurface.get_height();
+
+    // Iterate over each row of the image
+    for (int y = 0; y < imageHeight; ++y) {
+        // Calculate the target position for the row on the surface
+        int targetY = startY + y;
+
+        // Check if the target row is within the bounds of the surface
+        if (targetY >= 0 && targetY < surfaceHeight) {
+            // Calculate the start position for this row on the surface
+            int targetX = startX;
+
+            // Check if the entire row fits within the bounds of the surface
+            if (targetX >= 0 && (targetX + imageWidth) <= surfaceWidth) {
+                // Copy the entire row using std::memcpy, converting pixel colors
+                for (int x = 0; x < imageWidth; ++x) {
+                    ColorU8_sRGB_Alpha pixelColor = aImage.get_pixel(x, y);
+                    ColorU8_sRGB rgbColor = { pixelColor.r, pixelColor.g, pixelColor.b }; // Assuming direct mapping
+
+                    // Set pixel on surface
+                    aSurface.set_pixel_srgb(targetX + x, targetY, rgbColor);
+                }
+            } else {
+                // If the row doesn't fit entirely, copy pixel by pixel
+                for (int x = 0; x < imageWidth; ++x) {
+                    int targetX = startX + x;
+                    if (targetX >= 0 && targetX < surfaceWidth) {
+                        // Copy the pixel using set_pixel_srgb
+                        ColorU8_sRGB pixelColor = { aImage.get_pixel(x, y).r, aImage.get_pixel(x, y).g, aImage.get_pixel(x, y).b };
+                        aSurface.set_pixel_srgb(targetX, targetY, pixelColor);
+                    }
+                }
+            }
+        }
+    }
 }
+
 
