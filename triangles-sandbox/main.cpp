@@ -189,7 +189,6 @@ int main( int aArgc, char* aArgv[] ) try
 		switch( testId )
 		{
 			case 1: {
-				// Centered triangle
 				draw_triangle_interp( surface, 
 					{ fbwidth/2.f, fbheight-100.f },
 					{ 100.f, 100.f },
@@ -198,11 +197,9 @@ int main( int aArgc, char* aArgv[] ) try
 					{ 1.f, 0.f, 1.f },
 					{ 0.f, 1.f, 1.f }
 				);
-
 			} break;
 
 			case 2: {
-				// Centered triangle, permuted coordinates
 				draw_triangle_interp( surface, 
 					{ fbwidth-100.f, 100.f },
 					{ fbwidth/2.f, fbheight-100.f },
@@ -214,7 +211,6 @@ int main( int aArgc, char* aArgv[] ) try
 			} break;
 
 			case 3: {
-				// Extending out of screen
 				draw_triangle_interp( surface, 
 					{ float(fbwidth), fbheight-100.f },
 					{ fbwidth/2.f+100.f, 100.f },
@@ -225,8 +221,47 @@ int main( int aArgc, char* aArgv[] ) try
 				);
 			} break;
 
-			//TODO: your own sample cases here?
-			//TODO: your own sample cases here?
+			// Additional test cases for scenarios
+
+			case 4: {
+				// Small triangle close to one corner of the screen
+				draw_triangle_interp( surface, 
+					{ 10.f, 10.f }, { 15.f, 15.f }, { 10.f, 20.f },
+					{ 0.9f, 0.1f, 0.1f },   // Red
+					{ 0.1f, 0.9f, 0.1f },   // Green 
+					{ 0.1f, 0.1f, 0.9f }    // Blue 
+				);
+			} break;
+
+			case 5: {
+				// Triangle with one vertex off-screen (testing partial rendering)
+				draw_triangle_interp( surface, 
+					{ fbwidth + 20.f, 20.f }, { fbwidth / 2.f, 200.f }, { 200.f, 50.f },
+					{ 1.f, 0.f, 0.f }, { 0.f, 1.f, 0.f }, { 0.f, 0.f, 1.f }
+				);
+			} break;
+
+			case 6: {
+				// Large triangle, colors changing smoothly
+				draw_triangle_interp( surface, 
+					{ 5.f, fbheight - 5.f }, { fbwidth - 5.f, fbheight - 5.f }, { fbwidth / 2.f, 5.f },
+					{ 0.5f, 0.f, 0.f }, { 0.f, 0.5f, 0.f }, { 0.f, 0.f, 0.5f }
+				);
+			} break;
+
+			case 7: {
+				// Small triangle centered in the middle of the screen
+				float centerX = fbwidth / 2.0f;
+				float centerY = fbheight / 2.0f;
+				draw_triangle_interp( surface, 
+					{ centerX - 10.f, centerY + 10.f },  // Top vertex
+					{ centerX + 10.f, centerY + 10.f },  // Right vertex
+					{ centerX, centerY - 10.f },         // Bottom vertex
+					{ 1.f, 0.f, 0.f },  // Red
+					{ 0.f, 1.f, 0.f },  // Green
+					{ 0.f, 0.f, 1.f }   // Blue
+				);
+			} break;
 		}
 		
 		context.draw( surface );
