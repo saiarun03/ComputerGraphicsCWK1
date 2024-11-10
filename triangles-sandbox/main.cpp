@@ -189,42 +189,43 @@ int main( int aArgc, char* aArgv[] ) try
 		switch( testId )
 		{
 			case 1: {
+				// Small triangle at the center of the screen
 				draw_triangle_interp( surface, 
-					{ fbwidth/2.f, fbheight-100.f },
+					{ fbwidth / 2.f, fbheight - 100.f },
 					{ 100.f, 100.f },
-					{ fbwidth-100.f, 100.f },
-					{ 1.f, 1.f, 0.f },
-					{ 1.f, 0.f, 1.f },
-					{ 0.f, 1.f, 1.f }
+					{ fbwidth - 100.f, 100.f },
+					{ 1.f, 1.f, 0.f },  // Yellow
+					{ 1.f, 0.f, 1.f },  // Magenta
+					{ 0.f, 1.f, 1.f }   // Cyan
 				);
 			} break;
 
 			case 2: {
+				// Large triangle covering most of the screen
 				draw_triangle_interp( surface, 
-					{ fbwidth-100.f, 100.f },
-					{ fbwidth/2.f, fbheight-100.f },
+					{ fbwidth - 100.f, 100.f },
+					{ fbwidth / 2.f, fbheight - 100.f },
 					{ 100.f, 100.f },
-					{ 0.f, 1.f, 1.f },
-					{ 1.f, 1.f, 0.f },
-					{ 1.f, 0.f, 1.f }
+					{ 0.f, 1.f, 1.f },  // Cyan
+					{ 1.f, 1.f, 0.f },  // Yellow
+					{ 1.f, 0.f, 1.f }   // Magenta
 				);
 			} break;
 
 			case 3: {
+				// Triangle with larger scale and color gradient
 				draw_triangle_interp( surface, 
-					{ float(fbwidth), fbheight-100.f },
-					{ fbwidth/2.f+100.f, 100.f },
-					{ fbwidth*3.f/2.f-100.f, 100.f },
-					{ 1.f, 1.f, 0.f },
-					{ 1.f, 0.f, 1.f },
-					{ 0.f, 1.f, 1.f }
+					{ float(fbwidth), fbheight - 100.f },
+					{ fbwidth / 2.f + 100.f, 100.f },
+					{ fbwidth * 3.f / 2.f - 100.f, 100.f },
+					{ 1.f, 1.f, 0.f },  // Yellow
+					{ 1.f, 0.f, 1.f },  // Magenta
+					{ 0.f, 1.f, 1.f }   // Cyan
 				);
 			} break;
 
-			// Additional test cases for scenarios
-
 			case 4: {
-				// Small triangle close to one corner of the screen
+				// Tiny triangle at one corner
 				draw_triangle_interp( surface, 
 					{ 10.f, 10.f }, { 15.f, 15.f }, { 10.f, 20.f },
 					{ 0.9f, 0.1f, 0.1f },   // Red
@@ -234,7 +235,7 @@ int main( int aArgc, char* aArgv[] ) try
 			} break;
 
 			case 5: {
-				// Triangle with one vertex off-screen (testing partial rendering)
+				// Triangle with one vertex off-screen
 				draw_triangle_interp( surface, 
 					{ fbwidth + 20.f, 20.f }, { fbwidth / 2.f, 200.f }, { 200.f, 50.f },
 					{ 1.f, 0.f, 0.f }, { 0.f, 1.f, 0.f }, { 0.f, 0.f, 1.f }
@@ -242,7 +243,7 @@ int main( int aArgc, char* aArgv[] ) try
 			} break;
 
 			case 6: {
-				// Large triangle, colors changing smoothly
+				// Large triangle with smooth color gradient
 				draw_triangle_interp( surface, 
 					{ 5.f, fbheight - 5.f }, { fbwidth - 5.f, fbheight - 5.f }, { fbwidth / 2.f, 5.f },
 					{ 0.5f, 0.f, 0.f }, { 0.f, 0.5f, 0.f }, { 0.f, 0.f, 0.5f }
@@ -250,7 +251,7 @@ int main( int aArgc, char* aArgv[] ) try
 			} break;
 
 			case 7: {
-				// Small triangle centered in the middle of the screen
+				// Small triangle centered in the middle
 				float centerX = fbwidth / 2.0f;
 				float centerY = fbheight / 2.0f;
 				draw_triangle_interp( surface, 
