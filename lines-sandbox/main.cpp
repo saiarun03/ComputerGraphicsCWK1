@@ -108,11 +108,22 @@ int main(int aArgc, char* aArgv[]) try
     glfwSwapInterval(1); // V-Sync is on.
 
     // Get actual framebuffer size.
+    // This can be different from the window size, as standard window
+    // decorations (title bar, borders, ...) may be included in the window size
+    // but not be part of the drawable surface area.
     int iwidth, iheight;
     glfwGetFramebufferSize(window, &iwidth, &iheight);
 
     float wscale = 1.f, hscale = 1.f;
 #if defined(__APPLE__)
+    // HACK: Window content scaling on MacOS.
+    //
+    // This is a workaround for MacOS, where scaling affects retina displays.
+    // Windows technically also does content scaling, but it seems to do this
+    // more transparently. Either way, the behaviour doesn't seem to be
+    // consistent across the platforms, though, which is slightly unfortunate.
+    // (And not having a (retina) Mac to test on makes figuring this out a tad
+    // more tricky.)
     glfwGetWindowContentScale(window, &wscale, &hscale);
 #endif
 
@@ -138,6 +149,8 @@ int main(int aArgc, char* aArgv[]) try
 
             if (0 == nwidth || 0 == nheight)
             {
+                // Window minimized? Pause until it is unminimized.
+                // This is a bit of a hack.
                 do
                 {
                     glfwWaitEvents();
@@ -176,39 +189,39 @@ int main(int aArgc, char* aArgv[]) try
         switch (testId)
         {
             case 1: {
-                // Scenario-1: Diagonal line from top-left to bottom-right
+                // Just a diagonal line
                 draw_line_solid(surface,
                     {0.f, 0.f}, {float(fbwidth), float(fbheight)},
-                    {255, 255, 0} // Yellow line
+                    {255, 255, 0}
                 );
             } break;
-
             case 2: {
-                // Scenario-2: Diagonal line from bottom-right to top-left
+                // Just a diagonal line, "reverse"
                 draw_line_solid(surface,
                     {fbwidth - 100.f, fbheight - 100.f}, {100.f, 100.f},
-                    {255, 255, 0} // Yellow line
+                    {255, 255, 0}
                 );
             } break;
 
             case 3: {
-                // Scenario-3: Line completely off-screen
+                // Completely off-screen -- you should not see anything, but
+                // your program should also not crash/assert.
                 draw_line_solid(surface,
                     {fbwidth + 10.f, fbheight / 2.f}, {fbwidth + 100.f, fbheight / 2.f},
-                    {255, 255, 0} // Yellow line
+                    {255, 255, 0}
                 );
             } break;
-
             case 4: {
-                // Scenario-4: Line extending beyond right edge
+                // Extends out of screen
                 draw_line_solid(surface,
                     {fbwidth / 2.f, fbheight / 2.f}, {fbwidth + 10.f, fbheight / 2.f},
-                    {255, 255, 0} // Yellow line
+                    {255, 255, 0}
                 );
             } break;
 
+            // TODO: your own sample cases here?
             case 5: {
-                // Scenario-5: Horizontal line near center
+                // Test 5: Horizontal line near the center of the window
                 draw_line_solid(surface,
                     {fbwidth / 4.f, fbheight / 2.f},
                     {fbwidth * 3.f / 4.f, fbheight / 2.f},
@@ -217,7 +230,7 @@ int main(int aArgc, char* aArgv[]) try
             } break;
 
             case 6: {
-                // Scenario-6: Vertical line near center
+                // Test 6: Vertical line near the center of the window
                 draw_line_solid(surface,
                     {fbwidth / 2.f, fbheight / 4.f},
                     {fbwidth / 2.f, fbheight * 3.f / 4.f},
@@ -226,7 +239,7 @@ int main(int aArgc, char* aArgv[]) try
             } break;
 
             case 7: {
-                // Scenario-7: Short horizontal line at top-left corner
+                // Test 7: Short horizontal line at the top-left corner
                 draw_line_solid(surface,
                     {10.f, 10.f}, {100.f, 10.f},
                     {0, 0, 255} // Blue line
@@ -234,10 +247,19 @@ int main(int aArgc, char* aArgv[]) try
             } break;
 
             case 8: {
-                // Scenario-8: Diagonal line from quarter to three-quarters
+                // Test 8: Vertical line at the bottom-right corner
                 draw_line_solid(surface,
-                    {fbwidth / 4.f, fbheight / 4.f}, {fbwidth * 3.f / 4.f, fbheight * 3.f / 4.f},
-                    {255, 0, 255} // Purple line
+                    {fbwidth - 10.f, fbheight - 100.f},
+                    {fbwidth - 10.f, fbheight - 200.f},
+                    {255, 255, 255} // White line
+                );
+            } break;
+
+            case 9: {
+                // Test 9: Large diagonal line across the window
+                draw_line_solid(surface,
+                    {0.f, 0.f}, {fbwidth * 1.5f, fbheight * 1.5f},
+                    {255, 165, 0} // Orange line
                 );
             } break;
 
@@ -251,6 +273,10 @@ int main(int aArgc, char* aArgv[]) try
         glfwSwapBuffers(window);
     }
 
+    // Cleanup.
+    // For now, all objects are automatically cleaned up when they go out of
+    // scope.
+    
     return 0;
 }
 catch (std::exception const& eErr)
