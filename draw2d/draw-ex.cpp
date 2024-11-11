@@ -44,28 +44,29 @@ void draw_ex_line_solid(SurfaceEx& aSurface, Vec2f aBegin, Vec2f aEnd, ColorU8_s
 
 
 void blit_ex_solid(SurfaceEx& aSurface, ImageRGBA const& aImage, Vec2f aPosition) {
-    // Get the dimensions of the image
-    int imageWidth = aImage.get_width();
-    int imageHeight = aImage.get_height();
+    // Get the dimensions of the image (unsigned, as they represent sizes)
+    unsigned int imageWidth = aImage.get_width();
+    unsigned int imageHeight = aImage.get_height();
 
-    // Calculate the top-left corner of the blitting area
+    // Calculate the top-left corner of the blitting area (signed integers, but make sure to compare with unsigned values later)
     int startX = static_cast<int>(aPosition.x - imageWidth / 2);
     int startY = static_cast<int>(aPosition.y - imageHeight / 2);
 
-    // Get surface dimensions for bounds checking
-    int surfaceWidth = aSurface.get_width();
-    int surfaceHeight = aSurface.get_height();
+    // Get surface dimensions for bounds checking (unsigned, as they represent sizes)
+    unsigned int surfaceWidth = aSurface.get_width();
+    unsigned int surfaceHeight = aSurface.get_height();
 
     // Iterate over each pixel of the image
-    for (int y = 0; y < imageHeight; ++y) {
-        for (int x = 0; x < imageWidth; ++x) {
-            // Calculate the target position on the surface
+    for (unsigned int y = 0; y < imageHeight; ++y) {
+        for (unsigned int x = 0; x < imageWidth; ++x) {
+            // Calculate the target position on the surface (signed, but to compare with unsigned dimensions later)
             int targetX = startX + x;
             int targetY = startY + y;
 
             // Check if the target position is within the bounds of the surface
-            if (targetX >= 0 && targetX < surfaceWidth &&
-                targetY >= 0 && targetY < surfaceHeight) {
+            // Ensure that comparisons between signed and unsigned are handled correctly
+            if (targetX >= 0 && static_cast<unsigned int>(targetX) < surfaceWidth &&
+                targetY >= 0 && static_cast<unsigned int>(targetY) < surfaceHeight) {
                 // Get the pixel from the image
                 ColorU8_sRGB_Alpha pixelColor = aImage.get_pixel(x, y);
                 // Convert to ColorU8_sRGB
@@ -78,35 +79,36 @@ void blit_ex_solid(SurfaceEx& aSurface, ImageRGBA const& aImage, Vec2f aPosition
 }
 
 
+
 #include <cstring> // For std::memcpy
 
 void blit_ex_memcpy(SurfaceEx& aSurface, ImageRGBA const& aImage, Vec2f aPosition) {
-    // Get the dimensions of the image
-    int imageWidth = aImage.get_width();
-    int imageHeight = aImage.get_height();
+    // Get the dimensions of the image (unsigned, as they represent sizes)
+    unsigned int imageWidth = aImage.get_width();
+    unsigned int imageHeight = aImage.get_height();
 
-    // Calculate the top-left corner of the blitting area
+    // Calculate the top-left corner of the blitting area (signed integers, but make sure to compare with unsigned values later)
     int startX = static_cast<int>(aPosition.x - imageWidth / 2);
     int startY = static_cast<int>(aPosition.y - imageHeight / 2);
 
-    // Get surface dimensions for bounds checking
-    int surfaceWidth = aSurface.get_width();
-    int surfaceHeight = aSurface.get_height();
+    // Get surface dimensions for bounds checking (unsigned, as they represent sizes)
+    unsigned int surfaceWidth = aSurface.get_width();
+    unsigned int surfaceHeight = aSurface.get_height();
 
     // Iterate over each row of the image
-    for (int y = 0; y < imageHeight; ++y) {
-        // Calculate the target position for the row on the surface
+    for (unsigned int y = 0; y < imageHeight; ++y) {
+        // Calculate the target position for the row on the surface (signed, but we'll cast to unsigned later)
         int targetY = startY + y;
 
         // Check if the target row is within the bounds of the surface
-        if (targetY >= 0 && targetY < surfaceHeight) {
+        if (targetY >= 0 && static_cast<unsigned int>(targetY) < surfaceHeight) {
             // Calculate the start position for this row on the surface
             int targetX = startX;
 
             // Check if the entire row fits within the bounds of the surface
-            if (targetX >= 0 && (targetX + imageWidth) <= surfaceWidth) {
+            if (targetX >= 0 && static_cast<unsigned int>(targetX + imageWidth) <= surfaceWidth) {
                 // Copy the entire row using std::memcpy, converting pixel colors
-                for (int x = 0; x < imageWidth; ++x) {
+                for (unsigned int x = 0; x < imageWidth; ++x) {
                     ColorU8_sRGB_Alpha pixelColor = aImage.get_pixel(x, y);
                     ColorU8_sRGB rgbColor = { pixelColor.r, pixelColor.g, pixelColor.b }; // Assuming direct mapping
 
@@ -115,9 +117,9 @@ void blit_ex_memcpy(SurfaceEx& aSurface, ImageRGBA const& aImage, Vec2f aPositio
                 }
             } else {
                 // If the row doesn't fit entirely, copy pixel by pixel
-                for (int x = 0; x < imageWidth; ++x) {
+                for (unsigned int x = 0; x < imageWidth; ++x) {
                     int targetX = startX + x;
-                    if (targetX >= 0 && targetX < surfaceWidth) {
+                    if (targetX >= 0 && static_cast<unsigned int>(targetX) < surfaceWidth) {
                         // Copy the pixel using set_pixel_srgb
                         ColorU8_sRGB pixelColor = { aImage.get_pixel(x, y).r, aImage.get_pixel(x, y).g, aImage.get_pixel(x, y).b };
                         aSurface.set_pixel_srgb(targetX, targetY, pixelColor);
@@ -127,5 +129,6 @@ void blit_ex_memcpy(SurfaceEx& aSurface, ImageRGBA const& aImage, Vec2f aPositio
         }
     }
 }
+
 
 
