@@ -9,25 +9,37 @@
 
 // Used Bresenham's line algorithm from this resource: https://www.geeksforgeeks.org/bresenhams-line-generation-algorithm/
 void draw_ex_line_solid(SurfaceEx& aSurface, Vec2f aBegin, Vec2f aEnd, ColorU8_sRGB aColor) {
-    // Convert floating-point coordinates to integer
+    // Convert floating-point coordinates to integer (since Bresenham works with integer coordinates)
     int x0 = static_cast<int>(aBegin.x);
     int y0 = static_cast<int>(aBegin.y);
     int x1 = static_cast<int>(aEnd.x);
     int y1 = static_cast<int>(aEnd.y);
 
-    // Calculate differences and steps
+    // Get the surface dimensions for bounds checking
+    int surfaceWidth = aSurface.get_width();
+    int surfaceHeight = aSurface.get_height();
+
+    // Ensure that both the start and end points are within the surface bounds
+    if (x0 < 0 || x0 >= surfaceWidth || y0 < 0 || y0 >= surfaceHeight ||
+        x1 < 0 || x1 >= surfaceWidth || y1 < 0 || y1 >= surfaceHeight) {
+        return;  // Early exit if the line is out of bounds
+    }
+
+    // Calculate differences and steps (for Bresenham's algorithm)
     int dx = abs(x1 - x0);
     int dy = abs(y1 - y0);
     int sx = (x0 < x1) ? 1 : -1; // Step direction for x
     int sy = (y0 < y1) ? 1 : -1; // Step direction for y
 
-    int err = dx - dy; // Initial error
+    int err = dx - dy; // Initial error term
 
     while (true) {
-        // Plot the current point
-        aSurface.set_pixel_srgb(x0, y0, aColor);
+        // Plot the current point, but first check if it's within bounds
+        if (x0 >= 0 && x0 < surfaceWidth && y0 >= 0 && y0 < surfaceHeight) {
+            aSurface.set_pixel_srgb(x0, y0, aColor);
+        }
 
-        // Check if we've reached the end point
+        // Check if we've reached the endpoint
         if (x0 == x1 && y0 == y1) break;
 
         int e2 = 2 * err;
@@ -41,6 +53,7 @@ void draw_ex_line_solid(SurfaceEx& aSurface, Vec2f aBegin, Vec2f aEnd, ColorU8_s
         }
     }
 }
+
 
 
 void blit_ex_solid(SurfaceEx& aSurface, ImageRGBA const& aImage, Vec2f aPosition) {
